@@ -1,0 +1,271 @@
+@extends('layout.adminLayout')
+@section('title') {{ucwords(__('cp.products'))}}
+@endsection
+@section('css')
+
+    <style>
+        a:link {
+            text-decoration: none;
+        }
+    </style>
+
+@endsection
+@section('content')
+
+
+    <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
+        <!--begin::Subheader-->
+        <div class="subheader py-2 py-lg-4 subheader-solid" id="kt_subheader">
+            <div class="container-fluid d-flex align-items-center justify-content-between flex-wrap flex-sm-nowrap">
+                <!--begin::Info-->
+                <div class="d-flex align-items-center flex-wrap mr-1">
+                    <div class="d-flex align-items-baseline mr-5">
+                        <h3>{{__('cp.add_product')}}</h3>
+                    </div>
+                </div>
+                <!--end::Info-->
+                <!--begin::Toolbar-->
+                <div class="d-flex align-items-center">
+                    <a href="{{url(getLocal().'/admin/products')}}"
+                       class="btn btn-secondary  mr-2">{{__('cp.cancel')}}</a>
+                    <button id="submitButton" class="btn btn-success ">{{__('cp.save')}}</button>
+                </div>
+                <!--end::Toolbar-->
+            </div>
+        </div>
+        <!--end::Subheader-->
+        <!--begin::Entry-->
+        <div class="d-flex flex-column-fluid">
+            <!--begin::Container-->
+            <div class="container">
+                <!--begin::Card-->
+                <div class="card card-custom gutter-b example example-compact">
+                    <form method="post" action="{{url(app()->getLocale().'/admin/products')}}"
+                          enctype="multipart/form-data" class="form-horizontal" role="form" id="form">
+                        {{ csrf_field() }}
+
+                        <div class="card-header">
+                            <h3 class="card-title">{{__('cp.main_info')}}</h3>
+                        </div>
+                        <div class="row col-sm-12">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{__('cp.brand')}}</label>
+                                            <select class="form-control form-control-solid"
+                                                    name="brand_id" id="brand_id" required>
+                                                <option value=""> @lang('cp.select')</option>
+                                                @foreach($brands as $brand)
+                                                    <option value="{{$brand->id}}"
+                                                            data-id="{{$brand->id}}"> {{@$brand->brand_name}} </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{__('cp.category')}}</label>
+                                            <select class="form-control form-control-solid"
+                                                    name="category_id" id="category_id" required>
+                                                <option value=""> @lang('cp.select')</option>
+                                                @foreach($categories as $category)
+                                                    <option value="{{$category->id}}"
+                                                            data-id="{{$category->id}}"> {{$category->name}} </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                   
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{__('cp.price')}}</label>
+                                            <input type="number" class="form-control form-control-solid" name="price"
+                                                   value="{{old('price')}}" required/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{__('cp.discount')}}</label><span
+                                                style="color: #7b7878; font-size: 13px;">( @lang('cp.optional') )</span>
+                                            <input type="number" class="form-control form-control-solid"
+                                                   name="discount" value="{{old('discount')}}"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    @foreach($locales as $locale)
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>{{__('cp.name_'.$locale->lang)}}</label>
+                                                <input type="text" class="form-control form-control-solid"
+                                                       {{($locale->lang == 'ar') ? 'dir=rtl' :'' }}  name="name_{{$locale->lang}}"
+                                                       value="{{old('name_'.$locale->lang)}}" required/>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                
+                            <div class="row">
+                                @foreach($locales as $locale)
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{__('cp.description_'.$locale->lang)}}</label>
+                                                <textarea class="form-control kt-tinymce-4"
+                                                       {{($locale->lang == 'ar') ? 'dir=rtl' :'' }}  name="description_{{$locale->lang}}"
+                                                        rows="8" required>{{old('description_'.$locale->lang)}}</textarea>
+                                            
+                                        </div>
+                                    </div>
+                                @endforeach
+                                <label class="form-group">Colors:</label>
+                                @foreach ($colors as $color)
+
+                                <div class="form-group row">
+                               
+                                    <div class="col-6 ">
+                                        <div class="checkbox-list">
+                                            <label class="checkbox">
+                                                <input type="checkbox" id="colors"
+                                                name="colors[]" value="{{$color->id}}"/> {{$color->name}}
+                                                <span></span>
+                                            </label>
+                                            
+                                           
+                                           
+                                        </div>
+                                    </div>
+                                    <label class="col-6">
+                                        <div class="form-group">
+                                            <div class="checkbox-inline">
+                                                @foreach ($sizes as $size )
+
+                                                <label class="checkbox">
+                                                    <input type="checkbox"  id="sizes"
+                                                    name="sizes_for_color_{{$color->id}}[]" value="{{$size->id}}"/> {{$size->name}}
+                                                    <div class="col-12" >
+                                                     <input type="number" name="quantities_for_color_{{$color->id}}_size_{{$size->id}}" class="col-12"  />
+                                                    </div>
+                                                    <span></span>
+                                                </label>
+                                               @endforeach
+                                                
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                @endforeach
+
+                                
+                            </div>
+                            <div class="card-body col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{__('cp.image')}}</label>
+                                            <div class="fileinput-new thumbnail"
+                                                 onclick="document.getElementById('edit_image').click()"
+                                                 style="cursor:pointer">
+                                                <img src="{{choose()}}" id="editImage" alt="">
+                                            </div>
+                                            <div class="btn red"
+                                                 onclick="document.getElementById('edit_image').click()">
+                                                <i class="fa fa-pencil"></i>
+                                            </div>
+                                            <input type="file" class="form-control" name="image"
+                                                   id="edit_image"
+                                                   style="display:none">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <fieldset>
+                                    <legend>{{__('cp.more_images')}}</legend>
+                                    <div class="form-group {{ $errors->has('image') ? ' has-error' : '' }}">
+                                        <div class="col-md-12 col-md-offset-0">
+                                            @if ($errors->has('image'))
+                                                <span class="help-block">
+                                                    <strong>{{ $errors->first('image') }}</strong>
+                                                </span>
+                                            @endif
+                                            <div class="imageupload" style="display:flex;flex-wrap:wrap">
+        
+                                            </div>
+                                            <div class="input-group control-group increment">
+                                                <div class="input-group-btn"
+                                                     onclick="document.getElementById('all_images').click()">
+                                                    <button class="btn btn-success" type="button"><i
+                                                            class="glyphicon glyphicon-plus"></i>{{__("cp.addImages")}}
+                                                    </button>
+                                                </div>
+                                                <input type="file" class="form-control hidden" accept="image/*"
+                                                       id="all_images" name="all_images" multiple/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submitForm" style="display:none"></button>
+                    </form>
+                </div>
+                <!--end::Card-->
+            </div>
+            <!--end::Container-->
+        </div>
+        <!--end::Entry-->
+    </div>
+
+
+@endsection
+
+@section('js')
+    <script>
+        $('#edit_image').on('change', function (e) {
+            readURL(this, $('#editImage'));
+        });
+        $(document).on('click', '#submitButtonNow', function () {
+            // $('#submitButton').addClass('spinner spinner-white spinner-left');
+            $('#submitFormNow').click();
+        });
+    </script>
+<script src="{{asset('/admin_assets/plugins/custom/tinymce/tinymce.bundle.js')}}"></script>
+<script src="{{asset('/admin_assets/js/pages/crud/forms/editors/tinymce.js')}}"></script>
+
+@endsection
+
+@section('script')
+<script src="{{asset('assets/js/pages/crud/forms/widgets/bootstrap-select.js')}}"></script>
+<script src="{{asset('assets/js/pages/crud/file-upload/image-input.js')}}"></script>
+
+    <script>
+
+
+        function readURLMultiple(input, target) {
+            if (input.files) {
+                var filesAmount = input.files.length;
+                for (var i = 0; i < filesAmount; i++) {
+                    var reader = new FileReader();
+                    reader.onload = function (event) {
+                        target.append('<div class="imageBox text-center" style="width:150px;height:190px;margin:5px"><img src="' + event.target.result + '" style="width:150px;height:150px"><button class="btn btn-danger deleteImage" type="button">{{__("cp.delete")}}</button><input class="attachedValues" type="hidden" name="filename[]" value="' + event.target.result + '"></div>');
+                    };
+                    reader.readAsDataURL(input.files[i]);
+                }
+            }
+        }
+
+        $(document).on("click", ".deleteImage", function () {
+            $(this).parent().remove();
+        });
+        $('#all_images').on('change', function (e) {
+            readURLMultiple(this, $('.imageupload'));
+        });
+    </script>
+    @endsection
